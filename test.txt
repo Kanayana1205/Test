@@ -1,2 +1,1 @@
 hello git!
-https://github.com/Kanayana1205/Test.git
