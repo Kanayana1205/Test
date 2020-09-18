@@ -6,6 +6,7 @@ import pandas as pd
 import csv
 from openpyxl.utils import column_index_from_string
 from openpyxl.styles.alignment import Alignment
+from openpyxl.formatting.rule import DataBarRule
 import time
 
 # ファイル選択ダイアログの表示
@@ -44,10 +45,10 @@ ws.cell(row = max_row + 1,column= 3).value = "=SUM(C{}:C{})".format(2,max_row)
 for row in range(2,max_row + 2):
     #書式設定を変更　
     ws.cell(row = row,column = 1).number_format = "0"
-    ws.cell(row = row,column = 1).alignment = Alignment(horizontal='center',
-                                                          vertical='bottom')
+    ws.cell(row = row,column = 1).alignment = Alignment(horizontal='center')
     ws.cell(row = row,column = 3).number_format = "#,##0"
-    
+    ws.cell(row = row,column = 6).alignment = Alignment(horizontal='center')
+
     #構成比の数式の記入・書式設定（％）
     ws.cell(row = row,column = 4).value = "=C{}/$C${}".format(row,max_row + 1)
     ws.cell(row = row,column = 4).number_format = "0.00%"
@@ -66,28 +67,39 @@ ws.column_dimensions["C"].width = 15
 ws.column_dimensions["D"].width = 15
 ws.column_dimensions["E"].width = 15
 
+#データバーの設定
+rule = DataBarRule(start_type="percentile", start_value= 0, end_type="percentile", end_value=100,
+                  color="FF638EC6", showValue="None", minLength=None, maxLength=None)
+
+ws.conditional_formatting.add(f"D2:D{max_row}",rule)
+ws.conditional_formatting.add(f"E2:E{max_row}",rule)
+
+
+
 #累計構成比を値として読み込むために、一度保存してからxlwingsで一度開く
 wb.save("ABCanalysis.xlsx")
-wbxl=xw.Book("ABCanalysis.xlsx")
-print(wbxl.sheets['ABCanalysis'].range('E2').value)
+wbxl = xw.Book("ABCanalysis.xlsx")
+wsxl = wbxl.sheets["ABCanalysis"]
 
 #ランク定義
 Arank = 0.7
 Brank = 0.9
 
-
-'''
-for row in range(2,max_row + 2):
-    if int(ws.cell(row = row,column = 5).value) <= Arank:
-        ws.cell(row = row,column = 6).value = "A"
-    elif int(ws.cell(row = row,column = 5).value) >= Arank and int(ws.cell(row = row,column = 5).value) <= Brank :
-        ws.cell(row = row,column = 6).value = "B"
+#ABCランクの記入・色付け
+for row in range(2,max_row + 1):
+    if wsxl.cells(row,5).value <= Arank:
+        wsxl.cells(row,6).value = "A"
+        wsxl.cells(row,6).color = (152, 251, 152)
+    elif wsxl.cells(row,5).value >= Arank and wsxl.cells(row,5).value <= Brank :
+        wsxl.cells(row,6).value = "B"
+        wsxl.cells(row,6).color = (255, 222, 173)
     else:
-        ws.cell(row = row,column = 6).value = "C"
+        wsxl.cells(row,6).value = "C"
+        wsxl.cells(row,6).color = (255, 192, 203)
 
-'''
+wbxl.save("ABCanalysis.xlsx")
 
 
-#wb3.save("ABCanalysis.xlsx")
+
 
 
