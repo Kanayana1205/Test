@@ -23,8 +23,8 @@ filename = '佐川送り状データ_' + now.strftime('%Y%m%d') + '.csv'
 
 
 #指定フォルダ内のxlsxファイルを全て取得
-files = glob.glob('X:/通箱/★システム管理部/西澤/佐川送り状/*.xls*')
-#files = glob.glob("C:/Users/TWHN26/Desktop/CSV転記テスト/*.xls*")
+#files = glob.glob('X:/通箱/★システム管理部/西澤/佐川送り状/*.xls*')
+files = glob.glob("C:/Users/TWHN26/Desktop/CSV転記テスト/*.xls*")
 
 #---------------------------------------------------------------------------------------------------------------------
 #まず、入力エラー（文字制限）を全ファイルチェックし、該当ファイルをメッセージボックスに表示させる。なければ続行-----------------
@@ -68,6 +68,7 @@ for file in files:
     to_name_1 = ws["C11"].value
     to_name_2 = ws["C12"].value
     tel = ws["C13"].value
+    title = ws["C14"].value
 
     #日付の型をｙｙｙｙｍｍｄｄになるように置き換え
     to_date = ws["G5"].value
@@ -86,7 +87,7 @@ for file in files:
     #csvへ入力する為のリスト
     data = [tel,postal_code,address_1,address_2,address_3,\
         to_name_1,to_name_2,'','','','',towa_tel,towa_postalcode,towa_address,'',\
-        towa_name,'',1,'','','','','','',0,1,day,morning,'',0,'',1]
+        towa_name,'','001',title,'','','','',1,'000','001',day,morning,'',0,'',1,'',0,'','','',0,0,'',1]
 
   
 
