@@ -35,7 +35,7 @@ for file in files:
     wb = px.load_workbook(file, data_only=True)
     ws = wb.worksheets[0]
 
-    if not ws.cell(row = 5,column = 6).value == "着日" :
+    if  ws.cell(row = 5,column = 8).value == "着日" :
         error_file.append(file)
 
     for i in range(8,13):
@@ -54,48 +54,54 @@ if not len(error_file) == 0:
 #-----------------------------------------------------------------------------------------------------------
 for file in files:
     wb = px.load_workbook(file, data_only=True)
-    ws = wb.worksheets[0]
-    ex_postal_code = ws["C7"].value
-    #郵便番号に全角が入っていた場合（空白でなければ）半角にする
-    if not ex_postal_code is None:
-        ex_postal_code = mojimoji.zen_to_han(ex_postal_code)
-    postal_code = ex_postal_code
-    address_1 = ws["C8"].value
-    address_2 = ws["C9"].value
-    address_3 = ws["C10"].value
-   
+    
+    #すべてのワークシートに対して作業する。ただし、F5に「着日」の文字があるかどうかで条件分岐
+    for ws in wb.worksheets:
+        
+        if  ws.cell(row = 5,column = 6).value == "着日" :
+            ex_postal_code = ws["C7"].value
+            #郵便番号に全角が入っていた場合（空白でなければ）半角にする
+            if not ex_postal_code is None:
+                ex_postal_code = mojimoji.zen_to_han(ex_postal_code)
+            postal_code = ex_postal_code
+            address_1 = ws["C8"].value
+            address_2 = ws["C9"].value
+            address_3 = ws["C10"].value
+        
 
-    to_name_1 = ws["C11"].value
-    to_name_2 = ws["C12"].value
-    tel = ws["C13"].value
-    title = ws["C14"].value
+            to_name_1 = ws["C11"].value
+            to_name_2 = ws["C12"].value
+            tel = ws["C13"].value
+            title = ws["C14"].value
 
-    #日付の型をｙｙｙｙｍｍｄｄになるように置き換え
-    to_date = ws["G5"].value
-    if not to_date is None:
-        try:
-            day = (str(to_date.year) + str(format(int(to_date.month),'02')) + str(format(int(to_date.day),'02')))
-        except AttributeError :
-            day = "●要チェック"
-    else:
-        day = ""
+            #日付の型をｙｙｙｙｍｍｄｄになるように置き換え
+            to_date = ws["G5"].value
+            if not to_date is None:
+                try:
+                    day = (str(to_date.year) + str(format(int(to_date.month),'02')) + str(format(int(to_date.day),'02')))
+                except AttributeError :
+                    day = "●要チェック"
+            else:
+                day = ""
 
 
-    morning = ws["I7"].value
-    if morning == "〇":
-        #morning = '="01"'
-        morning = "01"
-        #エクセルでCSVを開くと「1」となるが、メモ帳で確認すると「01」であり、佐川も01で読み込む
-       
-    #csvへ入力する為のリスト
-    data = [tel,postal_code,address_1,address_2,address_3,\
-        to_name_1,to_name_2,'','','','',towa_tel,towa_postalcode,towa_address,'',\
-        towa_name,'','001',title,'','','','',1,'000','001',day,morning,'',0,'','','',0,'','','',0,0,'',1]
+            morning = ws["I7"].value
+            if morning == "〇":
+                #morning = '="01"'
+                morning = "01"
+                #エクセルでCSVを開くと「1」となるが、メモ帳で確認すると「01」であり、佐川も01で読み込む
+            
+            #csvへ入力する為のリスト
+            data = ['',tel,postal_code,address_1,address_2,address_3,\
+                to_name_1,to_name_2,'',348244210016,'','','','','','',\
+                '','','001',title,'','','','',1,'000','001',day,morning,'',0,'','','','','005','','','','','',1]
 
-  
+        
 
-    with open(filename, 'a',newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(data)
+            with open(filename, 'a',newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(data)
 
- 
+        #F5に「着日」の文字が無いシートは無視
+        else:
+            pass
